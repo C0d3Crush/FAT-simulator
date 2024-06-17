@@ -12,7 +12,8 @@ private:
 public:
     // Konstruktor
     FATsimulator(int pointer_size_in_bits, int cluster_size_in_bytes)
-        : pointer_size_in_bits(pointer_size_in_bits), cluster_size_in_bytes(cluster_size_in_bytes) {
+        : pointer_size_in_bits(pointer_size_in_bits), cluster_size_in_bytes(cluster_size_in_bytes) 
+    {
         int num_clusters = 1 << pointer_size_in_bits; // 2^pointer_size_in_bits
         pointers.resize(num_clusters, -1); // Initialisiere Zeiger mit -1 (ungültig)
         bitfield.resize(num_clusters, false); // Initialisiere alle Cluster als frei (false)
@@ -180,52 +181,67 @@ public:
     }
 };
 
+// Smoke Test
+    void smokeTest(FATsimulator* sim) 
+    {
+        srand(time(0));
+        std::vector<int> file_starts;
+
+        for (int i = 0; i < 20; ++i) {
+            int action = rand() % 5;
+            int file_size = (rand() % 20 + 1) * 1024;
+            int start_cluster = (file_starts.empty()) ? -1 : file_starts[rand() % file_starts.size()];
+            int offset = rand() % 10000; 
+
+            try 
+            {
+                switch (action) 
+                {
+                    case 0: // Allocate
+                        std::cout << "Allocating file of size: " << file_size << std::endl;
+                        file_starts.push_back(sim->allocate(file_size));
+                        break;
+                    case 1: // Append
+                        std::cout << "Appending " << file_size << " bytes to file starting at cluster: " << start_cluster << std::endl;
+                        sim->append(start_cluster, file_size);
+                        break;
+                    case 2: // Get cluster list
+                        std::cout << "Getting cluster list for file starting at cluster: " << start_cluster << std::endl;
+                        {
+                            std::vector<int> cluster_list = sim->get_cluster_list(start_cluster);
+                            if (!cluster_list.empty()) {
+                                std::cout << "Cluster list: ";
+                                for (int cluster : cluster_list) {
+                                    std::cout << cluster << " ";
+                                }
+                                std::cout << std::endl;
+                            }
+                        }
+                        break;
+                    case 3: // Seek cluster
+                        std::cout << "Seeking cluster at offset " << offset << " bytes in file starting at cluster: " << start_cluster << std::endl;
+                        std::cout << "Found cluster: " << sim->seek_cluster(start_cluster, offset) << std::endl;
+                        break;
+                    case 4: // Delete file
+                        std::cout << "Deleting file starting at cluster: " << start_cluster << std::endl;
+                        sim->delete_file(start_cluster);
+                        file_starts.erase(std::remove(file_starts.begin(), file_starts.end(), start_cluster), file_starts.end());
+                        break;
+                    default:
+                        break;
+                }
+            } catch (const std::exception& e) 
+            {
+                std::cout << "Error: " << e.what() << std::endl;
+            }
+            sim->printStatus();
+        }
+    }
+
 // Beispielverwendung
 int main(int argc, char *argv[])
-{
-    if (argc == 1) 
-        {
-            std::cout << "no option picked" << std::endl;
-            return 0;
-        }
-
-    int cluster_size = 0;
-    if (*argv[1] == '0') cluster_size = 1024;
-    else if (*argv[1] == '1') cluster_size = 2048;
-
-    std::cout << "cluster size = " << cluster_size << std::endl;
-
-    FATsimulator sim(4, cluster_size); 
-
-    std::vector<int> file_sizes;
-    std::vector<int> file_starts;
-
-    file_sizes.push_back(3 * 1024);
-    file_sizes.push_back(5 * 1024);
-    file_sizes.push_back(7 * 1024);
-    file_sizes.push_back(16 * 1024);
-
-    for(int i = 0; i < file_sizes.size(); i++)
-    {
-        int file_size = file_sizes[i];
-
-        std::cout << "adding file of size: "<< file_size << std::endl;
-        file_starts.push_back(sim.allocate(file_size));
-        //sim.printStatus();
-    }   
-
-    std::cout << "removein 1 & 3:"<<std::endl;
-    sim.delete_file(file_starts[0]);
-    sim.delete_file(file_starts[2]);
-    //sim.printStatus();
-
-
-    int new_file_size = 11 * 1024;
-
-    std::cout << "adding file of size: "<< new_file_size << std::endl;
-    file_starts.push_back(sim.allocate(new_file_size));
-
-    sim.printStatus();    
-    
+{   
+    FATsimulator sim(16, 2048);
+    smokeTest(&sim);
     return 0;
 }
