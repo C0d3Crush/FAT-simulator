@@ -1,0 +1,25 @@
+cluster size = 2048
+adding file of size: 3072
+adding file of size: 5120
+adding file of size: 7168
+adding file of size: 16384
+removein 1 & 3:
+adding file of size: 11264
+Cluster Status:
+Cluster 0: Belegt, Zeiger: 1
+Cluster 1: Belegt, Zeiger: 5
+Cluster 2: Belegt, Zeiger: 3
+Cluster 3: Belegt, Zeiger: 4
+Cluster 4: Belegt, Zeiger: -1
+Cluster 5: Belegt, Zeiger: 6
+Cluster 6: Belegt, Zeiger: 7
+Cluster 7: Belegt, Zeiger: 8
+Cluster 8: Belegt, Zeiger: -1
+Cluster 9: Frei, Zeiger: -1
+Cluster 10: Frei, Zeiger: -1
+Cluster 11: Frei, Zeiger: -1
+Cluster 12: Frei, Zeiger: -1
+Cluster 13: Frei, Zeiger: -1
+Cluster 14: Frei, Zeiger: -1
+Cluster 15: Frei, Zeiger: -1
+
