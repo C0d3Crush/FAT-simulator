@@ -181,46 +181,51 @@ public:
 };
 
 // Beispielverwendung
-int main() {
-    int cluster_size_small = 1024;
-    int cluster_size_big = 2048;
+int main(int argc, char *argv[])
+{
+    if (argc == 1) 
+        {
+            std::cout << "no option picked" << std::endl;
+            return 0;
+        }
+
+    int cluster_size = 0;
+    if (*argv[1] == '0') cluster_size = 1024;
+    else if (*argv[1] == '1') cluster_size = 2048;
+
+    std::cout << "cluster size = " << cluster_size << std::endl;
+
+    FATsimulator sim(4, cluster_size); 
 
     std::vector<int> file_sizes;
-
     std::vector<int> file_starts;
 
-    file_sizes.push_back(3);
-    file_sizes.push_back(5);
-    file_sizes.push_back(7);
-    file_sizes.push_back(16);
+    file_sizes.push_back(3 * 1024);
+    file_sizes.push_back(5 * 1024);
+    file_sizes.push_back(7 * 1024);
+    file_sizes.push_back(16 * 1024);
 
-
-    FATsimulator sim_s(4, cluster_size_small); 
-    FATsimulator sim_l(4, cluster_size_big); 
-
-    std::cout << "s:"<<std::endl;
-    sim_s.printStatus();
-    std::cout << "l:"<<std::endl;
-    sim_l.printStatus();
-    std::cout << "\n";
-
-     for(int i = 0; i < file_sizes.size(); i++)
+    for(int i = 0; i < file_sizes.size(); i++)
     {
-        int file_size = file_sizes[i] * 1024;
-        std::cout << "adding file of size: "<< file_size << std::endl;
-        file_starts.push_back(sim_s.allocate(file_size));
-        sim_s.printStatus();
+        int file_size = file_sizes[i];
 
         std::cout << "adding file of size: "<< file_size << std::endl;
-        sim_l.allocate(file_size);
-        sim_l.printStatus();
+        file_starts.push_back(sim.allocate(file_size));
+        //sim.printStatus();
     }   
 
     std::cout << "removein 1 & 3:"<<std::endl;
-    sim_s.delete_file(file_starts[0]);
-    sim_s.delete_file(file_starts[2]);
+    sim.delete_file(file_starts[0]);
+    sim.delete_file(file_starts[2]);
+    //sim.printStatus();
 
-    sim_s.printStatus();
 
+    int new_file_size = 11 * 1024;
+
+    std::cout << "adding file of size: "<< new_file_size << std::endl;
+    file_starts.push_back(sim.allocate(new_file_size));
+
+    sim.printStatus();    
+    
     return 0;
 }
